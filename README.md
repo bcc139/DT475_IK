@@ -1,4 +1,4 @@
-# HW: Inverse Kinematics from Scratch
+# HW04: Inverse Kinematics from Scratch
 
 **DT475 Animation and Modeling · Blender 5.2 + Python · 10 % · Due: Wed 25 Nov 2026** · Details and background: [README_FULL.md](README_FULL.md)
 
