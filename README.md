@@ -4,13 +4,11 @@
 
 Write the maths of IK yourself: **three short functions** (about 30 lines) that move the robot arm. Plain Python and `math` only. **Not allowed:** Blender's IK constraint, Damped Track / Track To, `bpy.ops.pose.*`.
 
-![what you will build](images/storyboard.png)
-
 ## What to do
 
 1. Keep all files in one folder. Open `ik_robotarm_start.blend` → **Scripting** workspace → *Text ▸ Open* `ik_main.py`.
 2. Fill in the three `TODO` functions in `ik_main.py` (below). Press **Alt+P** to run; the report is in *Window ▸ Toggle System Console*. It checks your code against the real Blender rig.
-3. Try `MODE = "LIVE"` (drag `IK_Target`: Object Mode, click it, press **G**) and `MODE = "DEMO"` (baked animation, press Space), with both `SOLVER = "CCD"` and `"TWO_LINK"`.
+3. Try `MODE = "LIVE"` with both `SOLVER = "CCD"` and `"TWO_LINK"`: in **Object Mode**, click `IK_Target`, press **G** and drag it; the arm follows using your code.
 4. Copy `answers_template.md` to `answers.md` and answer Q1–Q5, using the numbers printed under **EXPERIMENTS** in `MODE = "CHECK"`.
 
 Edit **only** `ik_main.py`. You do not need to read `ik_helper.py`.

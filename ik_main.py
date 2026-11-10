@@ -30,8 +30,8 @@ import ik_helper
 # ----------------------------------------------------------------------------
 #  SETTINGS
 # ----------------------------------------------------------------------------
-MODE = "CHECK"      # "CHECK" = test my code | "LIVE" = drag IK_Target | "DEMO" = pick & place animation
-SOLVER = "CCD"      # which of MY solvers moves the arm in LIVE / DEMO:  "CCD" or "TWO_LINK"
+MODE = "CHECK"      # "CHECK" = test my code | "LIVE" = drag IK_Target and the arm follows
+SOLVER = "CCD"      # which of MY solvers moves the arm in LIVE:  "CCD" or "TWO_LINK"
 
 JOINT_LIMITS_DEG = [(-20, 150), (-150, -5), (-130, 100)]   # (low, high) for q1, q2, q3
 CCD_MAX_ITER = 100  # most sweeps CCD may use

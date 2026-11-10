@@ -4,9 +4,7 @@
 
 **DT475 Animation and Modeling · Blender 5.2 + Python (bpy) · Weight: 10 % · Effort: about 2–3.5 hours outside class** · Due: Wed 25 Nov 2026
 
-Last week you made the robot arm reach with Blender's IK constraint. This week you find out **what that constraint actually does** by writing the maths yourself: **three short functions**, about 30 lines in total. At the end, your own code drags the arm to any target you move, and can play a small demo where the hand visits a box and a green marker.
-
-![what you will build](images/storyboard.png)
+Last week you made the robot arm reach with Blender's IK constraint. This week you find out **what that constraint actually does** by writing the maths yourself: **three short functions**, about 30 lines in total. At the end, your own code makes the arm follow a target that you drag around in the 3D viewport.
 
 ---
 
@@ -30,9 +28,9 @@ When you finish, you can:
 
 | File | What it is |
 |---|---|
-| `ik_robotarm_start.blend` | The robot arm from last week (bones + binding), **without** any IK constraint, plus an `IK_Target` empty, a `Box`, a green `Place_Marker`, a floor and a side-view camera. |
+| `ik_robotarm_start.blend` | The robot arm from last week (bones + binding), **without** any IK constraint, plus an `IK_Target` empty, a floor and a side-view camera. |
 | `ik_main.py` | **The only file you edit.** Three functions marked `TODO`. |
-| `ik_helper.py` | Blender plumbing (moves the bones, checks your code, live and demo modes). Keep it next to the `.blend`. **You do not need to read or edit it.** |
+| `ik_helper.py` | Blender plumbing (moves the bones, checks your code, runs the live mode). Keep it next to the `.blend`. **You do not need to read or edit it.** |
 | `ik_challenge.py` | Optional challenge (+1 bonus), see §5. |
 | `answers_template.md` | Copy to `answers.md` and fill in. |
 | `images/` | The figures in this worksheet. |
@@ -56,9 +54,8 @@ The script has three **modes**, set by `MODE` at the top of `ik_main.py`:
 |---|---|
 | `"CHECK"` (default) | Tests your three functions against the real Blender rig and prints a report (below), then an **EXPERIMENTS** table you use in the written answers. |
 | `"LIVE"` | Drag the target: the arm follows using **your** solver. In **Object Mode**, click `IK_Target` in the viewport, press **G** and move it (its X is locked, so it stays in the arm's plane). Set `MODE = "CHECK"` and run again to switch it off. |
-| `"DEMO"` | Bakes a short animation (145 frames): the hand visits the box, then the green marker. Press **Space** to play. |
 
-`SOLVER` (`"CCD"` or `"TWO_LINK"`) chooses which of your solvers moves the arm in LIVE and DEMO. With `"TWO_LINK"` the last joint is frozen, so links 2 and 3 act as one longer link. Out-of-reach targets then leave the arm where it is.
+`SOLVER` (`"CCD"` or `"TWO_LINK"`) chooses which of your solvers moves the arm in LIVE. With `"TWO_LINK"` the last joint is frozen, so links 2 and 3 act as one longer link. Out-of-reach targets then leave the arm where it is.
 
 Tip: press **Ctrl+Numpad 3** in the 3D viewport for the side view.
 
@@ -147,7 +144,7 @@ One **sweep** visits the joints from the **tip towards the root**. For each join
 | 3d | 0.5 | `q_start` is not modified (return a new list); `converged` is `True` only when the tip really is within `tol` |
 
 ### Written answers · **2.5 pt** · LO1, LO4, LO5
-Copy `answers_template.md` to `answers.md`. The script prints an **EXPERIMENTS** table after the check; use those numbers as evidence. Also try `MODE = "LIVE"` with both solvers, and `MODE = "DEMO"`.
+Copy `answers_template.md` to `answers.md`. The script prints an **EXPERIMENTS** table after the check; use those numbers as evidence. Also try `MODE = "LIVE"` with both solvers.
 
 1. **FK vs IK (LO1).** In your own words, define both using *joint space* and *task space*. For each case, say how many IK solutions exist and why: (a) 2 links, reachable; (b) 3 links; (c) a target exactly at full stretch; (d) out of reach. *(Experiments 1 and 3)*
 2. **Analytic vs CCD (LO4).** Compare them on exactness, speed (sweeps needed), joint limits, and what kind of chain each works on. Describe what you see in `LIVE` mode with each `SOLVER`. *(Experiment 2)*

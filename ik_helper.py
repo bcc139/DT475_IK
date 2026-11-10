@@ -5,7 +5,7 @@
 #  Everything that is *about IK* is in  ik_main.py.  This file only:
 #     - reads the rig and writes joint angles into the Blender bones
 #     - checks your three functions against the real Blender rig
-#     - runs the LIVE (drag the target) and DEMO (touch the box and the marker) modes
+#     - runs the LIVE mode (drag the target, the arm follows)
 #  Keep it in the same folder as ik_robotarm_start.blend.
 # =============================================================================
 
@@ -17,9 +17,6 @@ from mathutils import Vector
 ARMATURE_NAME = "Armature"
 CHAIN_BONES = ["Bone.003", "Bone.004", "Bone.005"]     # the 3 IK links, root -> tip
 TARGET_NAME = "IK_Target"
-BOX_NAME = "Box"
-PLACE_NAME = "Place_Marker"
-HAND_ABOVE_BOX = 1.9      # DEMO: chain tip height above the box centre when grabbing
 
 
 def wrap_angle(a):
@@ -64,10 +61,6 @@ class PlanarArm:
             b.rotation_euler = (0.0, 0.0, 0.0)
         self.apply(self.rest_q)
 
-    def keyframe(self, frame):
-        for name in CHAIN_BONES:
-            self.obj.pose.bones[name].keyframe_insert("rotation_euler", index=0, frame=frame)
-
     def joints_uv(self):
         """Where Blender REALLY put the joints: [root, end of link 1, end of link 2, tip] as (u, v)."""
         pb = self.obj.pose.bones
@@ -85,7 +78,7 @@ class PlanarArm:
 
 
 # =============================================================================
-#  Which of YOUR solvers moves the arm in LIVE / DEMO mode
+#  Which of YOUR solvers moves the arm in LIVE mode
 # =============================================================================
 class Driver:
     def __init__(self, arm, solver, two_link, ccd, limits, max_iter, tol):
@@ -159,7 +152,7 @@ def stop_live():
 def start_live(driver):
     stop_live()
     arm = driver.arm
-    for name in (ARMATURE_NAME, TARGET_NAME, BOX_NAME):
+    for name in (ARMATURE_NAME, TARGET_NAME):
         bpy.data.objects[name].animation_data_clear()    # a keyed IK_Target cannot be dragged
     arm.reset()
     arm.place_target(arm.joints_uv()[-1])                # start with the target on the arm tip
@@ -168,50 +161,6 @@ def start_live(driver):
     bpy.context.view_layer.update()
     print("LIVE mode, solver = %s." % driver.name)
     print("  Object Mode -> click IK_Target -> press G (X is locked) and move it. Set MODE = 'CHECK' to stop.")
-
-
-# =============================================================================
-#  DEMO mode: the tip visits the box and the green marker, the arm follows
-# =============================================================================
-def run_demo(driver):
-    arm, scene = driver.arm, bpy.context.scene
-    obj, target = arm.obj, bpy.data.objects[TARGET_NAME]
-    stop_live()
-    for name in (ARMATURE_NAME, TARGET_NAME):
-        bpy.data.objects[name].animation_data_clear()
-    inv = obj.matrix_world.inverted()
-
-    def above(name, dv):
-        p = inv @ bpy.data.objects[name].matrix_world.translation
-        return (-p.y, p.z + dv)
-
-    arm.reset()
-    rest_tip = arm.joints_uv()[-1]
-    box = above(BOX_NAME, HAND_ABOVE_BOX)              # chain tip just over the box
-    marker = above(PLACE_NAME, HAND_ABOVE_BOX)         # ... and just over the green marker
-    lift = 1.5
-    hover = lambda p: (p[0], p[1] + lift)
-    stations = [(1, rest_tip), (25, hover(box)), (40, box), (55, box), (70, hover(box)),
-                (100, hover(marker)), (115, marker), (130, marker), (145, hover(marker))]
-
-    prefs = bpy.context.preferences.edit
-    old = prefs.keyframe_new_interpolation_type
-    prefs.keyframe_new_interpolation_type = 'LINEAR'
-    try:
-        driver.q = list(arm.rest_q)
-        for (f0, p0), (f1, p1) in zip(stations, stations[1:]):
-            for f in range(f0, f1 + 1):
-                t = (f - f0) / float(f1 - f0)
-                uv = (p0[0] + (p1[0] - p0[0]) * t, p0[1] + (p1[1] - p0[1]) * t)
-                arm.place_target(uv)
-                target.keyframe_insert("location", frame=f)
-                driver.move_to(uv)
-                arm.keyframe(f)
-    finally:
-        prefs.keyframe_new_interpolation_type = old
-    scene.frame_start, scene.frame_end = 1, stations[-1][0]
-    scene.frame_set(1)
-    print("DEMO baked (solver = %s): frames 1-%d. Press Space in the 3D viewport to play." % (driver.name, scene.frame_end))
 
 
 # =============================================================================
@@ -480,10 +429,5 @@ def run(mode, solver, fk, two_link, ccd, limits_deg, max_iter, tol):
     driver = Driver(arm, solver, two_link, ccd, limits, max_iter, tol)
     if mode == "LIVE":
         start_live(driver)
-    elif mode == "DEMO":
-        try:
-            run_demo(driver)
-        except NotImplementedError as e:
-            print("DEMO needs your %s - finish that TODO first (MODE = 'CHECK' shows what is missing)." % e)
     else:
-        raise ValueError("MODE must be 'CHECK', 'LIVE' or 'DEMO'")
+        raise ValueError("MODE must be 'CHECK' or 'LIVE'")
